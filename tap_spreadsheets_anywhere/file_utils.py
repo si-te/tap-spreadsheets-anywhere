@@ -303,7 +303,7 @@ def list_files_in_s3_bucket(bucket, search_prefix=None):
 
     result = s3_client.list_objects_v2(**args)
     if result['KeyCount'] > 0:
-        s3_objects += [res for res in result['Contents'] if res['LastModified'] < cutoff_datetime]
+        s3_objects += [{'Key': res['Key'], 'LastModified': res['LastModified']} for res in result['Contents'] if res['LastModified'] < cutoff_datetime]
         next_continuation_token = result.get('NextContinuationToken')
 
         while next_continuation_token is not None:
@@ -314,7 +314,7 @@ def list_files_in_s3_bucket(bucket, search_prefix=None):
 
             result = s3_client.list_objects_v2(**continuation_args)
 
-            s3_objects += [res for res in result['Contents'] if res['LastModified'] < cutoff_datetime]
+            s3_objects += [{'Key': res['Key'], 'LastModified': res['LastModified']} for res in result['Contents'] if res['LastModified'] < cutoff_datetime]
             next_continuation_token = result.get('NextContinuationToken')
 
     LOGGER.info("Found {} files.".format(len(s3_objects)))
