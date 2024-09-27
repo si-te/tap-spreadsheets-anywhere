@@ -301,21 +301,22 @@ def list_files_in_s3_bucket(bucket, search_prefix=None):
     
     LOGGER.info("Listing files up until {}.".format(cutoff_datetime))
 
-    result = s3_client.list_objects_v2(**args)
+    result = s3_client.list_objects_v2(**args)    
     if result['KeyCount'] > 0:
         s3_objects += [{'Key': res['Key'], 'LastModified': res['LastModified']} for res in result['Contents'] if res['LastModified'] < cutoff_datetime]
-        next_continuation_token = result.get('NextContinuationToken')
+    
+    next_continuation_token = result.get('NextContinuationToken')
+    while next_continuation_token is not None:
+        LOGGER.debug('Continuing pagination with token "{}".'.format(next_continuation_token))
 
-        while next_continuation_token is not None:
-            LOGGER.debug('Continuing pagination with token "{}".'.format(next_continuation_token))
+        continuation_args = args.copy()
+        continuation_args['ContinuationToken'] = next_continuation_token
 
-            continuation_args = args.copy()
-            continuation_args['ContinuationToken'] = next_continuation_token
-
-            result = s3_client.list_objects_v2(**continuation_args)
-
+        result = s3_client.list_objects_v2(**continuation_args)
+        if result['KeyCount'] > 0:
             s3_objects += [{'Key': res['Key'], 'LastModified': res['LastModified']} for res in result['Contents'] if res['LastModified'] < cutoff_datetime]
-            next_continuation_token = result.get('NextContinuationToken')
+            
+        next_continuation_token = result.get('NextContinuationToken')
 
     LOGGER.info("Found {} files.".format(len(s3_objects)))
 
