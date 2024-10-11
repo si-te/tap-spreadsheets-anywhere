@@ -6,6 +6,7 @@ import tap_spreadsheets_anywhere.excel_handler
 import tap_spreadsheets_anywhere.json_handler
 import tap_spreadsheets_anywhere.jsonl_handler
 import tap_spreadsheets_anywhere.parquet_handler
+import tap_spreadsheets_anywhere.string_handler
 
 from azure.storage.blob import BlobServiceClient
 import os
@@ -183,6 +184,9 @@ def get_row_iterator(table_spec, uri):
         elif format == 'jsonl':
             reader = get_streamreader(uri, universal_newlines=universal_newlines, open_mode='r', encoding=encoding)
             iterator = tap_spreadsheets_anywhere.jsonl_handler.get_row_iterator(table_spec, reader)
+        elif format == 'string':
+            reader = get_streamreader(uri, universal_newlines=universal_newlines, open_mode='r', encoding=encoding)
+            iterator = tap_spreadsheets_anywhere.string_handler.get_row_iterator(table_spec, reader)
     except (ValueError,TypeError) as err:
         raise InvalidFormatError(uri,message=err)
 
