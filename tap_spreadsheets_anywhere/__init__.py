@@ -46,6 +46,7 @@ def generate_schema(table_spec, samples):
     metadata_schema = {
         '_smart_source_bucket': {'type': 'string'},
         '_smart_source_file': {'type': 'string'},
+        '_smart_source_last_modified': {'type': 'string', 'format': 'date-time'},
         '_smart_source_lineno': {'type': 'integer'},
     }
     prefer_number_vs_integer = table_spec.get('prefer_number_vs_integer', False)
@@ -133,7 +134,7 @@ def sync(config, state, catalog):
                             else:
                                 raise ife
                     for t_file in prefetch_batch:
-                        records_streamed += file_utils.write_file(futures[t_file['key']].result(), t_file['key'], table_spec, merged_schema, max_records=max_records_per_run-records_streamed)
+                        records_streamed += file_utils.write_file(futures[t_file['key']].result(), t_file['key'], t_file['last_modified'].isoformat(), table_spec, merged_schema, max_records=max_records_per_run-records_streamed)
                         if 0 < max_records_per_run <= records_streamed:
                             LOGGER.info(f'Processed the per-run limit of {records_streamed} records for stream "{stream.tap_stream_id}". Stopping sync for this stream.')
                             break

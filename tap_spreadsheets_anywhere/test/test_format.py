@@ -155,7 +155,7 @@ class TestFormatHandler(unittest.TestCase):
             samples = file_utils.sample_files(table_spec, target_files, sample_rate=1)
             schema = generate_schema(table_spec, samples)
             for t_file in target_files:
-                records_streamed += file_utils.write_file(t_file['key'], table_spec, schema.to_dict())
+                records_streamed += file_utils.write_file(t_file['key'], None, table_spec, schema.to_dict())
 
             raw_records = fake_out.getvalue().split('\n')
             records = [json.loads(raw) for raw in raw_records if raw]
