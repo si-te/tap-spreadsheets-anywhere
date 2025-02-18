@@ -193,6 +193,9 @@ def get_row_iterator(table_spec, uri):
     if format != 'excel':
         # Reduce the scope of changes to fix Issue #52.
         for _ in range(skip_initial):
-            next(iterator)
+            try: 
+                next(iterator)
+            except StopIteration:
+                break
 
     return iterator
